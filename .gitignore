@@ -1,0 +1,9 @@
+# Local secret files
+*.tfvars
+*.tfvars.json
+
+# Terraform runtime directories
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
