@@ -7,3 +7,6 @@
 *.tfstate
 *.tfstate.backup
 .terraform.lock.hcl
+
+# Draft files
+local-draft.md

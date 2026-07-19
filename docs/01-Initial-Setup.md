@@ -55,5 +55,15 @@ _Crucial: This must be done BEFORE selecting "Install Proxmox VE" from the boot 
    - **Management Interface:** Select the USB tethered network interface from the dropdown list (verify it matches the mobile interface detected in Step 3).
    - **Hostname (FQDN):** Enter a local domain name for your server (e.g., `pve01.homelab.local`).
    - **IP Address:** The installer will likely pull a DHCP IP from your phone (e.g., `192.168.1.x` or `172.20.10.x`). **Keep this configuration as-is for now.** You will change this to a permanent static IP later once you connect to your home router.
-   - **Gateway & DNS:** Leave these as the auto-detected values pulled from your phone.
+   - **Gateway & DNS:** Leave these as the auto-detected values pulled from your phone (gateway `192.168.1.1` and DNS `8.8.8.8`)
 5. **Review & Install:** Review your settings and click **Install**. Once finished, the Mini PC will reboot. Unplug the Ventoy USB drive when prompted.
+
+---
+
+## Step 5: Initial Access via USB Tethering (CLI/SSH)
+
+1. **Keep the Phone Connected:** Ensure the smartphone remains plugged in with USB Tethering active during the initial boot sequence.
+2. **Identify the Temporary IP:** On the Mini PC monitor, Proxmox will display its login banner showing a temporary IP address pulled from your phone (e.g., `https://192.168.1.x:8006`).
+3. **Log In Locally:** Log into the physical Mini PC console using:
+   - **Username:** `root`
+   - **Password:** _[The password you created in Step 4]_
