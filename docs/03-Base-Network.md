@@ -2,7 +2,7 @@
 
 This guide documents the step-by-step creation of isolated, scalable private NAT networks with automatic DHCP IP allocation on Proxmox VE.
 
-![Proxmox Baseline Network Architecture](docs/architecture/baseline-network.png)
+![Proxmox Baseline Network Architecture](base-network.png)
 
 ---
 
