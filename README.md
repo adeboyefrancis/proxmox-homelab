@@ -31,3 +31,9 @@ Getting the physical machine ready, configuring the host BIOS, and running the i
 Moving the server from mobile tethering to the permanent home network, assigning static local IPs, upgrading PVE repositories, and configuring local storage pools.
 
 - 👉 **[Phase 2 Guide](./docs/02-Post-Installation.md)**
+
+### 📍 Phase 3: Baseline Network Setup
+
+Network Segmentation step-by-step creation of isolated, scalable private NAT networks with automatic DHCP IP allocation on Proxmox VE.
+
+- 👉 **[Phase 3 Guide](./docs/03-Base-Network.md)**
