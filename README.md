@@ -43,3 +43,9 @@ Network Segmentation step-by-step creation of isolated, scalable private NAT net
 User, Group, and Permission Management for Proxmox VE and Linux PAM accounts.
 
 - 👉 **[Phase 4 Guide](./docs/04-System-Admin-IAM.md)**
+
+### 📍 Phase 5: Resource Organization Structure
+
+This system uses a **4-Resource-Pool Model** aligned with network boundaries, complemented by **Color-Coded Tags** for UI visualization and metadata.
+
+- 👉 **[Phase 4 Guide](./docs/05-Resource-Management.md)**
