@@ -37,3 +37,9 @@ Moving the server from mobile tethering to the permanent home network, assigning
 Network Segmentation step-by-step creation of isolated, scalable private NAT networks with automatic DHCP IP allocation on Proxmox VE.
 
 - 👉 **[Phase 3 Guide](./docs/03-Base-Network.md)**
+
+### 📍 Phase 4: System Administration (IAM)
+
+User, Group, and Permission Management for Proxmox VE and Linux PAM accounts.
+
+- 👉 **[Phase 4 Guide](./docs/04-System-Admin-IAM.md)**
