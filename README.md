@@ -48,4 +48,4 @@ User, Group, and Permission Management for Proxmox VE and Linux PAM accounts.
 
 This system uses a **4-Resource-Pool Model** aligned with network boundaries, complemented by **Color-Coded Tags** for UI visualization and metadata.
 
-- 👉 **[Phase 4 Guide](./docs/05-Resource-Management.md)**
+- 👉 **[Phase 5 Guide](./docs/05-Resource-Management.md)**
