@@ -86,3 +86,29 @@ sudo pvesm status
 ```
 
 After this, go add the matching entry in the Proxmox GUI (Datacenter → Permissions → Users → Add, Realm: `Linux PAM standard authentication`, same username) and assign it to the `admins` group from section 2 if it should have admin rights in the UI too.
+
+## 4. Create Terraform User, Role, and API Token via CLI
+
+To ensure a reproducible and consistent environment, provision infrastructure using a dedicated Proxmox user and custom role. Creating a dedicated API token establishes a secure, least-privilege trust relationship between Proxmox VE and Terraform.
+
+> **Note for Proxmox VE 9+:** `Sys.Audit` replaces the legacy `VM.Monitor` privilege.
+
+Execute the following commands on your Proxmox node via SSH or the Web UI Shell:
+
+```bash
+# 1. Create dedicated user and group
+pveum user add terraform@pve -comment "API User for Terraform"
+pveum group add terraform-group -comment "Group for Terraform API users"
+
+# 2. Assign user to group
+pveum user modify terraform@pve -group terraform-group
+
+# 3. Create custom Terraform role with required privileges
+pveum role add terraform-role --privs "Datastore.AllocateSpace Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.Config.CDROM VM.Config.CPU VM.Config.Cloudinit VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.PowerMgmt SDN.Use"
+
+# 4. Map the group and role to the root path
+pveum acl modify / -group terraform-group -role terraform-role
+
+# 5. Generate API token (disabling privilege separation inherits group/role permissions directly)
+pveum user token add terraform@pve apitoken --privsep 0
+```
