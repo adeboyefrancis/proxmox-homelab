@@ -7,7 +7,7 @@ terraform {
       version = "~> 0.111.1"
     }
   }
-# HCP Remote Backend Configuration - Using CLI workflow to authenticate with HCP and store state remotely
+  # HCP Remote Backend Configuration - Using CLI workflow to authenticate with HCP and store state remotely
   cloud {
     organization = "touchedbyfrancisblog"
 
