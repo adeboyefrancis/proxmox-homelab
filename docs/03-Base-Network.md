@@ -106,10 +106,10 @@ dhcp-option=tag:net1,option:router,10.10.0.1
 dhcp-option=tag:net1,option:dns-server,1.1.1.1,8.8.8.8
 
 # --- LAB NETWORK 2 (Workload/Platform - Optional Future Expansion) ---
-# interface=vmbr2
-# dhcp-range=set:net2,10.20.0.50,10.20.0.200,255.255.255.0,12h
-# dhcp-option=tag:net2,option:router,10.20.0.1
-# dhcp-option=tag:net2,option:dns-server,1.1.1.1,8.8.8.8
+interface=vmbr2
+dhcp-range=set:net2,10.20.0.50,10.20.0.200,255.255.255.0,12h
+dhcp-option=tag:net2,option:router,10.20.0.1
+dhcp-option=tag:net2,option:dns-server,1.1.1.1,8.8.8.8
 
 # Enable & Restart Service
 systemctl restart dnsmasq
