@@ -101,7 +101,7 @@ bind-interfaces
 
 # --- LAB NETWORK 1 (Core/Infra) ---
 interface=vmbr1
-dhcp-range=set:net1,10.10.0.50,10.10.0.200,255.255.255.0,12h
+dhcp-range=set:net1,10.10.0.100,10.10.0.250,255.255.255.0,12h
 dhcp-option=tag:net1,option:router,10.10.0.1
 dhcp-option=tag:net1,option:dns-server,1.1.1.1,8.8.8.8
 
@@ -110,6 +110,11 @@ interface=vmbr2
 dhcp-range=set:net2,10.20.0.50,10.20.0.200,255.255.255.0,12h
 dhcp-option=tag:net2,option:router,10.20.0.1
 dhcp-option=tag:net2,option:dns-server,1.1.1.1,8.8.8.8
+
+# --- Logging ---
+log-dhcp
+log-queries
+log-facility=/var/log/dnsmasq.log
 
 # Enable & Restart Service
 systemctl restart dnsmasq
