@@ -72,8 +72,8 @@ iface vmbr1 inet static
 #        bridge-stp off
 #        bridge-fd 0
 
-#        post-up iptables -t nat -A POSTROUTING -s '10.20.0.0/24' -o wlp0s20f3 -j MASQUERADE
-#        post-down iptables -t nat -D POSTROUTING -s '10.20.0.0/24' -o wlp0s20f3 -j MASQUERADE
+#        post-up iptables -t nat -A POSTROUTING -s '10.20.0.0/24' -o wlp0xxxx -j MASQUERADE
+#        post-down iptables -t nat -D POSTROUTING -s '10.20.0.0/24' -o wlp0xxxx -j MASQUERADE
 
 source /etc/network/interfaces.d/*
 
@@ -99,6 +99,9 @@ nano /etc/dnsmasq.conf
 # Bind strictly to designated interfaces to prevent host port conflicts
 bind-interfaces
 
+# --- WIFI Interface ---
+interface=wlp0xxxx
+
 # --- LAB NETWORK 1 (Core/Infra) ---
 interface=vmbr1
 dhcp-range=set:net1,10.10.0.100,10.10.0.250,255.255.255.0,12h
@@ -111,12 +114,17 @@ dhcp-range=set:net2,10.20.0.50,10.20.0.200,255.255.255.0,12h
 dhcp-option=tag:net2,option:router,10.20.0.1
 dhcp-option=tag:net2,option:dns-server,1.1.1.1,8.8.8.8
 
+
+# --- DNS Local Overrides ---
+local=/devlab.touchedbyfrancis.cloud/
+address=/devlab.touchedbyfrancis.cloud/192.168.1.50
+
 # --- Logging ---
 log-dhcp
 log-queries
 log-facility=/var/log/dnsmasq.log
 
-# Enable & Restart Service
+# Enable & Restart Service (systemctl enable --now dnsmasq)
 systemctl restart dnsmasq
 systemctl enable dnsmasq
 
@@ -130,11 +138,18 @@ Verify Interface Status:
 ```bash
 ip a show vmbr1
 # Ensure vmbr1 is active with IP 10.10.0.1/24.
-```
 
-Verify DHCP Service:
+# Verify DHCP Service:
 
-```bash
 systemctl status dnsmasq
 # Ensure the service shows active (running) without interface binding errors.
+
+# Validate configuration
+dnsmasq --test
+
+# Follow DHCP log
+tail -f /var/log/dnsmasq.log | grep DHCP
+
+# Test DNS resolution through dnsmasq
+dig @192.168.1.150 devlab.touchedbyfrancis.cloud
 ```

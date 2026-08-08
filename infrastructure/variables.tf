@@ -13,3 +13,8 @@ variable "proxmox_insecure" {
   description = "Whether to skip SSL certificate verification"
   type        = bool
 }
+
+variable "node_name" {
+  description = "The name of the Proxmox node where the VM will be created"
+  type        = string
+}
