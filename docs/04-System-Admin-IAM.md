@@ -104,7 +104,7 @@ pveum group add terraform-group -comment "Group for Terraform API users"
 pveum user modify terraform@pve -group terraform-group
 
 # 3. Create custom Terraform role with required privileges
-pveum role modify terraform-role --privs "Datastore.AllocateSpace Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.GuestAgent.Audit VM.GuestAgent.Unrestricted VM.Config.CDROM VM.Config.CPU VM.Config.Cloudinit VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.PowerMgmt SDN.Use"
+pveum role modify terraform-role --privs "Datastore.AllocateSpace Datastore.Allocate Datastore.AllocateTemplate Datastore.Audit Pool.Allocate Sys.Audit Sys.Console Sys.Modify VM.Allocate VM.Audit VM.Clone VM.GuestAgent.Audit VM.GuestAgent.Unrestricted VM.Config.CDROM VM.Config.CPU VM.Config.Cloudinit VM.Config.Disk VM.Config.HWType VM.Config.Memory VM.Config.Network VM.Config.Options VM.Migrate VM.PowerMgmt SDN.Use"
 
 
 # 4. Map the group and role to the root path

@@ -20,6 +20,11 @@ variable "proxmox_tags" {
   default     = []
 }
 
+variable "proxmox_password" {
+  description = "The password for the Proxmox VE API (used for SSH authentication)"
+  type        = string
+}
+
 variable "node_name" {
   description = "The name of the Proxmox node where the VM will be created"
   type        = string
