@@ -29,10 +29,6 @@ output "lxc_templates_pool_id" {
   description = "The ID of the LXC Templates resource pool"
 }
 
-output "automation_vm_id" {
-  value       = proxmox_virtual_environment_vm.automation_vm.vm_id
-  description = "The ID of the Automation VM"
-}
 output "automation_vm_ip" {
   value       = proxmox_virtual_environment_vm.automation_vm.ipv4_addresses[1][0]
   description = "The IP address of the Automation VM"

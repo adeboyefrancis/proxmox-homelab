@@ -20,10 +20,10 @@ variable "proxmox_tags" {
   default     = []
 }
 
-variable "proxmox_password" {
-  description = "The password for the Proxmox VE API (used for SSH authentication)"
-  type        = string
-}
+# variable "proxmox_password" {
+#   description = "The password for the Proxmox VE API (used for SSH authentication)"
+#   type        = string
+# }
 
 variable "node_name" {
   description = "The name of the Proxmox node where the VM will be created"
@@ -57,5 +57,10 @@ variable "vm_template_name" {
 
 variable "ssh_public_key" {
   description = "The public SSH key to be injected into the VM template via cloud-init"
+  type        = string
+}
+
+variable "ssh_key_path" {
+  description = "The path to the SSH private key for accessing the VM template"
   type        = string
 }

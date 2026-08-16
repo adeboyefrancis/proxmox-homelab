@@ -24,8 +24,8 @@ provider "proxmox" {
   insecure  = var.proxmox_insecure
 
   ssh {
-    agent    = true
+    agent    = false
     username = "root"
-    password = var.proxmox_password
+    private_key = file(var.ssh_key_path)
   }
 }
