@@ -8,6 +8,18 @@
 *.tfstate.backup
 .terraform.lock.hcl
 
+# Packer files to ignore
+*.pkrvars.hcl
+*.pkrvars.json
+*.auto.pkrvars.hcl
+*.auto.pkrvars.json
+.packer.d/plugins/
+crash.log
+packer_cache/
+output-*/
+*.box
+
+
 # Draft files
 local-draft.md
 notes/

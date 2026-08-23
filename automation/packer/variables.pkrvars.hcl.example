@@ -1,0 +1,8 @@
+# Packer Variable Definition Examples
+proxmox_api_token_id     = ""
+proxmox_api_token_secret = ""
+
+# Optional overrides
+proxmox_api_url          = "https://192.168.1.x:8006/api2/json"
+node_name                = "devlab"
+template_vm_id           = 9000

@@ -1,0 +1,3 @@
+# http/meta-data
+# This file is intentionally left blank. 
+# Cloud-init NoCloud datasource requires this file to exist alongside user-data.

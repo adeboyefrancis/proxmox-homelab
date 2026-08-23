@@ -6,8 +6,8 @@ resource "proxmox_virtual_environment_vm" "automation_vm" {
   vm_id     = 100
 
   clone {
-    vm_id = var.vm_template_id
-    full  = false # Fast linked clone -- fine while iterating; switch to full=true once the template stabilizes
+    vm_id = var.vm_template_id # points at the Packer-built golden image (vm_id 9000) -- see automation/packer/
+    full  = false # Fast linked clone -- fine while iterating; switch to full=true once your workflow stabilizes
   }
 
   agent {
@@ -20,7 +20,7 @@ resource "proxmox_virtual_environment_vm" "automation_vm" {
   }
 
   memory {
-    dedicated = 2048
+    dedicated = 4096
   }
 
   disk {
@@ -68,6 +68,9 @@ resource "proxmox_virtual_environment_vm" "automation_vm" {
   boot_order = ["scsi0"]
   started    = true
 
+  # Lets you manually shut this VM down when not in use without Terraform
+  # powering it back on the next time you `apply` for an unrelated resource
+  # (e.g. provisioning a new LXC). Start it back up manually when needed.
   lifecycle {
     ignore_changes = [started]
   }
@@ -95,17 +98,16 @@ resource "proxmox_virtual_environment_file" "cloud_init_snippet" {
       # ^ REQUIRED first line -- without it, cloud-init discards the entire
       # file as "unhandled non-multipart userdata" and nothing below runs,
       # including user creation.
+      #
+      # Package list is intentionally short: git, curl, python3, python3-pip,
+      # jq, htop, qemu-guest-agent, and openssh-server are already baked into
+      # the Packer golden image (automation/packer/) and don't need reinstalling.
+      # Only role-specific tools for THIS VM go here.
       package_update: true
       packages:
-        - git
-        - curl
-        - htop
         - btop
         - make
         - ansible
-        - python3
-        - python3-pip
-        - jq
 
       users:
         - name: automation
