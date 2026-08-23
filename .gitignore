@@ -18,7 +18,7 @@ crash.log
 packer_cache/
 output-*/
 *.box
-
+manifest.json
 
 # Draft files
 local-draft.md
