@@ -153,3 +153,11 @@ tail -f /var/log/dnsmasq.log | grep DHCP
 # Test DNS resolution through dnsmasq
 dig @192.168.1.150 devlab.touchedbyfrancis.cloud
 ```
+
+## Step 4:Public Domain + Certificate
+
+- [ ] Create an IAM user in AWS with Route53 access, save the access key/secret
+- [ ] Add an A record: `pve.mydomain.com → 192.168.1.x`
+- [ ] Proxmox: Datacenter → ACME → add account + Route53 DNS challenge plugin
+- [ ] Node → Certificates → add domain `pve.mydomain.com` → order certificate
+- [ ] Confirm: `https://pve.mydomain.com:8006` shows a trusted cert

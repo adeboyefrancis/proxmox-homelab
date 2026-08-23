@@ -113,3 +113,45 @@ pveum acl modify / -group terraform-group -role terraform-role
 # 5. Generate API token (disabling privilege separation inherits group/role permissions directly)
 pveum user token add terraform@pve apitoken --privsep 0
 ```
+
+## 5. SSH Key Setup — Mac → Proxmox → VMs (Bastion Pattern)
+
+> This SSH Key management replaces ad-hoc per-VM key troubleshooting with one dedicated key and one SSH config that works for every node, on both subnets, permanently.
+
+**Why this matters:** without `IdentitiesOnly yes`, SSH silently tries your Host machine (Mac or Windows) default key first and fails with a generic `Permission denied (publickey)` — indistinguishable from an actual misconfigured VM. This setup removes that ambiguity entirely.
+
+- [ ] Generate a dedicated key (don't reuse your personal default key):
+  ```bash
+  ssh-keygen -t ed25519 -f ~/.ssh/id_ed25519_proxmox -C "proxmox-terraform"
+  ssh-add --apple-use-keychain ~/.ssh/id_ed25519_proxmox # MacOS Only
+  ```
+- [ ] Copy it to the Proxmox host so your Mac can reach the host passwordlessly:
+  ```bash
+  ssh-copy-id -i ~/.ssh/id_ed25519_proxmox.pub root@192.168.1.150
+  ```
+- [ ] Add a Mac-side SSH config (`~/.ssh/config`) covering the host and both lab subnets:
+
+  ```bash
+  # Add VM Host configuration as required in the config e.g. automation , runner, containers etc
+  Host devlab
+      HostName 192.168.1.x
+      User root
+      IdentityFile ~/.ssh/id_ed25519_proxmox
+      IdentitiesOnly yes
+
+  Host 10.10.0.* 10.20.0.*
+      User automation
+      IdentityFile ~/.ssh/id_ed25519_proxmox
+      ProxyJump devlab
+      StrictHostKeyChecking accept-new
+  ```
+
+  _(Adjust `User automation` per-host later if different VMs use different cloud-init usernames.)_
+
+- [ ] Test the direct path — no `-J` or `-i` flags needed once the config is in place:
+  ```bash
+  ssh devlab
+  ```
+- [ ] This same key becomes `var.ssh_public_key` in Terraform (Phase 2) — every VM's `user_account.keys` gets `id_ed25519_proxmox.pub`, so once a VM is provisioned, `ssh 10.10.0.10` (or any lab IP) just works via the config above.
+
+**What this key is _not_ for:** this is your Mac's admin/debug identity. The `automation` VM still generates its own separate key pair in Phase 4 to act as the Ansible control node reaching other VMs — don't reuse this one for that.
