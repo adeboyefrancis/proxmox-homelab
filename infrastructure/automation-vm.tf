@@ -1,13 +1,15 @@
+
 # VM Clone configuration for Automation (Ansible, Git, CLI tools, GitHub Runner initially)
 resource "proxmox_virtual_environment_vm" "automation_vm" {
-  name      = "automation-vm"
-  node_name = var.node_name
-  pool_id   = proxmox_virtual_environment_pool.automation.pool_id
-  vm_id     = 100
+  name        = "automation-vm"
+  description = "Automation VM for Ansible, Git, CLI tools, Python Bash Managed by Terraform"
+  node_name   = var.node_name
+  pool_id     = proxmox_virtual_environment_pool.automation.pool_id
+  vm_id       = 100
 
   clone {
     vm_id = var.vm_template_id # points at the Packer-built golden image (vm_id 9000) -- see automation/packer/
-    full  = false # Fast linked clone -- fine while iterating; switch to full=true once your workflow stabilizes
+    full  = false              # Fast linked clone -- fine while iterating; switch to full=true once your workflow stabilizes
   }
 
   agent {
@@ -93,16 +95,15 @@ resource "proxmox_virtual_environment_file" "cloud_init_snippet" {
 
   source_raw {
     file_name = "cloud-init-vm.yml"
-    data = <<-EOF
+    data      = <<EOF
       #cloud-config
       # ^ REQUIRED first line -- without it, cloud-init discards the entire
       # file as "unhandled non-multipart userdata" and nothing below runs,
       # including user creation.
-      #
-      # Package list is intentionally short: git, curl, python3, python3-pip,
-      # jq, htop, qemu-guest-agent, and openssh-server are already baked into
-      # the Packer golden image (automation/packer/) and don't need reinstalling.
-      # Only role-specific tools for THIS VM go here.
+
+      hostname: automation-vm
+      manage_etc_hosts: true
+
       package_update: true
       packages:
         - btop
@@ -122,3 +123,10 @@ resource "proxmox_virtual_environment_file" "cloud_init_snippet" {
     EOF
   }
 }
+
+      # runcmd:
+      #   # Automatically drops the inherited host keys and restarts SSH to generate clean ones
+      #   - rm -f /etc/ssh/ssh_host_*
+      #   - dpkg-reconfigure openssh-server
+      #   - systemctl restart ssh
+      #   - echo "Automation VM setup complete!"

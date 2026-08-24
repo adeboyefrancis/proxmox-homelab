@@ -1,47 +1,28 @@
 #!/bin/bash
-# Seals the template before Packer converts it -- every step here exists
-# because of a real bug hit during manual VM builds: unsealed templates
-# cause every clone to share host keys/machine-id, which breaks cloud-init's
-# first-boot detection and triggers SSH "host key changed" warnings on
-# every reboot.
+set -e
 
-set -euo pipefail
+echo "==> Clearing apt cache and package management leftovers..."
+sudo apt-get clean
+sudo apt-get autoremove -y
 
-echo "Sealing template..."
+echo "==> Deleting the temporary Packer user SSH keys..."
+sudo rm -rf /home/ubuntu/.ssh/authorized_keys
 
-# --- Security: remove the Packer build-time backdoor ---
-# The 'ubuntu' user with a password existed only so Packer's SSH
-# communicator could connect during the build. Without this step, every
-# VM cloned from this template would carry a live, password-authenticated
-# account forever -- alongside your intended per-VM Terraform-managed user.
-passwd -l ubuntu
-rm -f /etc/sudoers.d/ubuntu-build
+echo "==> Purging the shared SSH Host Keys - clones generate unique keys..."
+sudo rm -f /etc/ssh/ssh_host_*
 
-# --- SSH host keys: regenerated fresh on each clone's first boot ---
-rm -f /etc/ssh/ssh_host_*
+echo "==> Cleaning out Cloud-Init runtime cache and logs - generate unique identifiers..."
+sudo cloud-init clean --logs
 
-# --- cloud-init state: forces correct first-boot detection per clone ---
-cloud-init clean --logs --machine-id
+echo "==> Resetting machine-id so clones generate unique identifiers..."
+# Truncating these files to 0 bytes tells Ubuntu to regenerate unique machine IDs on next boot
+sudo truncate -s 0 /etc/machine-id
+if [ -f /var/lib/dbus/machine-id ]; then
+    sudo truncate -s 0 /var/lib/dbus/machine-id
+fi
 
-# --- machine-id: systemd assigns a unique one on next boot ---
-truncate -s 0 /etc/machine-id
-rm -f /var/lib/dbus/machine-id
-ln -sf /etc/machine-id /var/lib/dbus/machine-id
+echo "==> Clearing shell history tracks..."
+history -c
+cat /dev/null > ~/.bash_history
 
-# --- Package cache and logs ---
-apt-get autoremove -y
-apt-get autoclean
-rm -rf /var/lib/apt/lists/*
-
-for user_home in /root /home/*; do
-  truncate -s 0 "$user_home/.bash_history" 2>/dev/null || true
-done
-
-journalctl --rotate
-journalctl --vacuum-time=1s
-truncate -s 0 /var/log/syslog 2>/dev/null || true
-truncate -s 0 /var/log/auth.log 2>/dev/null || true
-
-rm -rf /tmp/* /var/tmp/*
-
-echo "Sealing complete."
+echo "==> Image sealing complete!"
