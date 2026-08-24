@@ -53,7 +53,7 @@ qm set 100 --pool Automation --tags "automation;ansible;packer"
 qm set 102 --pool Platform --tags "platform;k3s;control-plane"
 ```
 
-#### 4. Infrastructure as Code via Terraform (bpg/proxmox)
+#### 4. Provision Resource Pool via Terraform (bpg/proxmox) - Optional
 
 When provisioning via IaC, manage pools directly using the proxmox_virtual_environment_pool resource and map VMs using pool_id and tags.
 
