@@ -27,7 +27,7 @@ resource "proxmox_virtual_environment_container" "technitium-dns" {
 
   disk {
     datastore_id = "local-lvm"
-    size         = 4 # GB
+    size         = 4 # Dedicated space between 4GB and 8GB
   }
 
   network_interface {
@@ -46,7 +46,6 @@ resource "proxmox_virtual_environment_container" "technitium-dns" {
     }
     user_account {
       keys = [var.ssh_public_key]
-      password = var.lxc_password
     }
   }
 }

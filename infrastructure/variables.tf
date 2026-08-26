@@ -64,8 +64,3 @@ variable "ssh_key_path" {
   description = "The path to the SSH private key for accessing the VM template"
   type        = string
 }
-
-variable "lxc_password" {
-  description = "The password for the LXC container user"
-  type        = string
-}
