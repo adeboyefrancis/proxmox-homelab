@@ -124,9 +124,9 @@ resource "proxmox_virtual_environment_file" "cloud_init_snippet" {
   }
 }
 
-      # runcmd:
-      #   # Automatically drops the inherited host keys and restarts SSH to generate clean ones
-      #   - rm -f /etc/ssh/ssh_host_*
-      #   - dpkg-reconfigure openssh-server
-      #   - systemctl restart ssh
-      #   - echo "Automation VM setup complete!"
+# runcmd:
+#   # Automatically drops the inherited host keys and restarts SSH to generate clean ones
+#   - rm -f /etc/ssh/ssh_host_*
+#   - dpkg-reconfigure openssh-server
+#   - systemctl restart ssh
+#   - echo "Automation VM setup complete!"
