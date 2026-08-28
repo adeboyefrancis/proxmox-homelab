@@ -1,0 +1,11 @@
+# Baseline Configuration Playbook for Proxmox Nodes
+
+- name: POC playbook starter for PVE Nodes
+  hosts: lxcs
+  tasks:
+   - name: Ping my pve nodes
+     ansible.builtin.ping:
+
+   - name: Print message
+     ansible.builtin.debug:
+       msg: Hello User from Automation VM
