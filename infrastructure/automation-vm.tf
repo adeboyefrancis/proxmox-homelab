@@ -74,12 +74,12 @@ resource "proxmox_virtual_environment_vm" "automation_vm" {
   # powering it back on the next time you `apply` for an unrelated resource
   # (e.g. provisioning a new LXC). Start it back up manually when needed.
   lifecycle {
-    ignore_changes = [started]
+    ignore_changes = [started, pool_id]
   }
 
   tags = [
-    "Automation",
-    "VMs"
+    "automation",
+    "vms"
   ]
 
 }
