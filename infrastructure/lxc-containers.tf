@@ -44,6 +44,11 @@ resource "proxmox_virtual_environment_container" "technitium-dns" {
         gateway = "10.10.0.1"
       }
     }
+
+    dns {
+      servers = ["8.8.8.8", "1.1.1.1"]
+    }
+
     user_account {
       keys = [var.ssh_public_key]
     }
@@ -56,7 +61,7 @@ resource "proxmox_virtual_environment_container" "technitium-dns" {
 resource "proxmox_virtual_environment_container" "hashicorp-vault" {
   node_name = var.node_name
   vm_id     = 202
-  tags      = ["LXCs", "Vault", "Security", "Automation", "Secrets", "Management"]
+  tags      = ["lxcs", "vault", "security", "automation", "secrets", "management"]
 
   unprivileged = true 
   
@@ -96,6 +101,11 @@ resource "proxmox_virtual_environment_container" "hashicorp-vault" {
         gateway = "10.10.0.1"
       }
     }
+
+    dns {
+      servers = [var.dns_server, "8.8.8.8", "1.1.1.1"]
+    }
+    
     user_account {
       keys     = [var.ssh_public_key]
       password = var.lxc_password
@@ -109,7 +119,7 @@ resource "proxmox_virtual_environment_container" "hashicorp-vault" {
 resource "proxmox_virtual_environment_container" "github-ci-runner" {
   node_name = var.node_name
   vm_id     = 203
-  tags      = ["LXCs", "CI-CD", "Github", "Automation", "Runner"]
+  tags      = ["lxcs", "ci-cd", "github", "automation", "runner"]
 
   unprivileged = true 
   
@@ -150,6 +160,11 @@ resource "proxmox_virtual_environment_container" "github-ci-runner" {
         gateway = "10.10.0.1"
       }
     }
+
+    dns {
+      servers = [var.dns_server, "8.8.8.8", "1.1.1.1"]
+    }
+
     user_account {
       keys     = [var.ssh_public_key]
       password = var.lxc_password

@@ -54,6 +54,10 @@ resource "proxmox_virtual_environment_vm" "automation_vm" {
       }
     }
 
+    dns {
+      servers = [var.dns_server, "8.8.8.8", "1.1.1.1"]
+    }
+
     # Single source of truth for network config. NOTE: user identity is defined
     # in the snippet below, not here -- when user_data_file_id is set, Proxmox
     # uses that file as the entire user-data payload instead of merging it with

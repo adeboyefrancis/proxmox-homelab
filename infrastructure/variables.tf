@@ -30,9 +30,9 @@ variable "node_name" {
   type        = string
 }
 
-variable "dns_servers" {
-  description = "List of DNS servers to be used by the VM"
-  type        = list(string)
+variable "dns_server" {
+  description = "The IP address of the DNS server to be used by the VM"
+  type        = string
 }
 
 variable "default_gateway_vmbr1" {
