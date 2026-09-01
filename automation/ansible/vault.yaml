@@ -1,35 +1,47 @@
 ---
-- name: Configure HashiCorp Vault
-  hosts: hcp-vault
+- name: Install and configure HashiCorp Vault
+  hosts: vault
   become: true
 
-  tasks:
+  vars:
+    # Use the system's true codename (e.g., bookworm or jammy)
+    vault_version_codename: "{{ ansible_distribution_release }}"
 
+  tasks:
     - name: Install prerequisites
       ansible.builtin.apt:
         name:
-          - curl
           - gpg
-          - ca-certificates
-          - lsb-release
+          - software-properties-common
+          - curl
         state: present
         update_cache: true
 
-    - name: Download HashiCorp GPG key
+    # Step 1: Download raw ASCII key to a temporary location
+    - name: Download raw HashiCorp GPG key
       ansible.builtin.get_url:
-        url: https://apt.releases.hashicorp.com/gpg
-        dest: /usr/share/keyrings/hashicorp-archive-keyring.asc
+        url: https://hashicorp.com
+        dest: /tmp/hashicorp.asc
         mode: "0644"
 
-    - name: Add HashiCorp repository
+    # Step 2: Exact translation of 'gpg --dearmor' command
+    - name: Dearmor HashiCorp GPG key into binary keyring
+      ansible.builtin.command:
+        cmd: gpg --y --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg /tmp/hashicorp.asc
+        creates: /usr/share/keyrings/hashicorp-archive-keyring.gpg
+
+    # Step 3: Clean up the temporary ASCII key file immediately
+    - name: Clean up temporary GPG file
+      ansible.builtin.file:
+        path: /tmp/hashicorp.asc
+        state: absent
+
+    # Step 4: Exact translation of the 'echo "deb [arch=... signed-by=...] ..."' command
+    - name: Add HashiCorp apt repository
       ansible.builtin.apt_repository:
-        repo: >-
-          deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.asc]
-          https://apt.releases.hashicorp.com
-          {{ ansible_distribution_release }}
-          main
-        filename: hashicorp
+        repo: "deb [arch={{ 'amd64' if ansible_architecture == 'x86_64' else ansible_architecture }} signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://hashicorp.com {{ vault_version_codename }} main"
         state: present
+        filename: hashicorp
 
     - name: Install Vault
       ansible.builtin.apt:
@@ -37,7 +49,7 @@
         state: present
         update_cache: true
 
-    - name: Create Vault data directory
+    - name: Ensure Vault data directory exists
       ansible.builtin.file:
         path: /opt/vault/data
         state: directory
@@ -45,40 +57,35 @@
         group: vault
         mode: "0750"
 
-    - name: Configure Vault
+    - name: Write Vault config (file storage backend, single-node homelab)
       ansible.builtin.copy:
         dest: /etc/vault.d/vault.hcl
         owner: vault
         group: vault
         mode: "0640"
         content: |
-          ui = true
-
-          storage "raft" {
-            path    = "/opt/vault/data"
-            node_id = "vault-01"
+          storage "file" {
+            path = "/opt/vault/data"
           }
 
           listener "tcp" {
             address     = "0.0.0.0:8200"
-            tls_disable = true
+            tls_disable = 1  # internal lab only, behind NAT -- revisit TLS before exposing externally
           }
 
-          api_addr = "http://{{ ansible_host }}:8200"
-
-          disable_mlock = true
+          api_addr     = "http://{{ ansible_default_ipv4.address }}:8200"
+          ui           = true
+      notify: Restart vault
 
     - name: Enable and start Vault
       ansible.builtin.systemd:
         name: vault
         enabled: true
         state: started
+        daemon_reload: true
 
-    - name: Check Vault service
+  handlers:
+    - name: Restart vault
       ansible.builtin.systemd:
         name: vault
-      register: vault_status
-
-    - name: Display Vault status
-      ansible.builtin.debug:
-        msg: "Vault is {{ vault_status.status.ActiveState }}"
+        state: restarted
