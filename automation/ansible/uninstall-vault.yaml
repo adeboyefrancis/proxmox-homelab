@@ -1,0 +1,43 @@
+---
+- name: Completely Uninstall and Purge HashiCorp Vault
+  hosts: hcp-vault
+  become: true
+
+  tasks:
+    - name: Stop and disable Vault service
+      ansible.builtin.systemd:
+        name: vault
+        state: stopped
+        enabled: false
+      ignore_errors: true
+
+    - name: Purge Vault package and configurations
+      ansible.builtin.apt:
+        name: vault
+        state: absent
+        purge: true
+
+    - name: Remove HashiCorp apt repository
+      ansible.builtin.apt_repository:
+        repo: >-
+          deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.asc]
+          https://apt.releases.hashicorp.com
+          {{ ansible_distribution_release }}
+          main
+        filename: hashicorp
+        state: absent
+
+    - name: Delete GPG key and residual directories
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /usr/share/keyrings/hashicorp-archive-keyring.asc
+        - /etc/vault.d             # Default configuration directory
+        - /opt/vault               # Custom Raft data directory path from your install
+        - /var/lib/vault           # Default data directory (if any)
+
+    - name: Clean up unused packages and apt cache
+      ansible.builtin.apt:
+        autoremove: true
+        purge: true
