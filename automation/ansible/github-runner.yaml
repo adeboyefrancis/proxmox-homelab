@@ -1,7 +1,6 @@
 ---
 - name: Install and register GitHub Actions self-hosted runner
-  hosts: runner
-  become: true
+  hosts: github-ci-runner
 
   vars:
     runner_version: "2.337.0" # check https://github.com/actions/runner/releases for the latest
