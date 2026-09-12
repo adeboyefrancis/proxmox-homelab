@@ -3,26 +3,28 @@
   hosts: github-ci-runner
 
   vars:
-    runner_version: "2.337.0" # check https://github.com/actions/runner/releases for the latest
+    runner_version: "2.337.0"
     runner_user: "ghrunner"
     runner_home: "/home/{{ runner_user }}/actions-runner"
 
   tasks:
     - name: Fail fast if required vars weren't passed
-      assert:
+      ansible.builtin.assert:
         that:
           - github_repo_url is defined
           - github_runner_token is defined
-        fail_msg: "Pass -e github_repo_url=... -e github_runner_token=... on the command line -- see the header of this file."
+        fail_msg: >-
+          Pass -e github_repo_url=... -e github_runner_token=...
+          on the command line.
 
-    - name: Create a dedicated runner user (never run the runner as root)
-      user:
+    - name: Create a dedicated runner user
+      ansible.builtin.user:
         name: "{{ runner_user }}"
         shell: /bin/bash
         create_home: true
 
     - name: Install prerequisites
-      apt:
+      ansible.builtin.apt:
         name:
           - curl
           - tar
@@ -31,56 +33,63 @@
         update_cache: true
 
     - name: Create the runner install directory
-      file:
+      ansible.builtin.file:
         path: "{{ runner_home }}"
         state: directory
         owner: "{{ runner_user }}"
         group: "{{ runner_user }}"
+        mode: "0755"
 
     - name: Check if the runner is already downloaded
-      stat:
+      ansible.builtin.stat:
         path: "{{ runner_home }}/run.sh"
       register: runner_installed
 
     - name: Download the runner package
-      become_user: "{{ runner_user }}"
-      get_url:
-        url: "https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz"
-        dest: "{{ runner_home }}/actions-runner.tar.gz"
+      ansible.builtin.command:
+        cmd: >
+          su - {{ runner_user }} -c
+          "curl -L
+          https://github.com/actions/runner/releases/download/v{{ runner_version }}/actions-runner-linux-x64-{{ runner_version }}.tar.gz
+          -o {{ runner_home }}/actions-runner.tar.gz"
       when: not runner_installed.stat.exists
 
     - name: Extract the runner package
-      become_user: "{{ runner_user }}"
-      unarchive:
+      ansible.builtin.unarchive:
         src: "{{ runner_home }}/actions-runner.tar.gz"
         dest: "{{ runner_home }}"
         remote_src: true
+        owner: "{{ runner_user }}"
+        group: "{{ runner_user }}"
       when: not runner_installed.stat.exists
 
     - name: Check if the runner is already configured
-      stat:
+      ansible.builtin.stat:
         path: "{{ runner_home }}/.runner"
       register: runner_configured
 
-    - name: Configure the runner (registers it against the repo)
-      become_user: "{{ runner_user }}"
-      command: >
-        {{ runner_home }}/config.sh
-        --url {{ github_repo_url }}
-        --token {{ github_runner_token }}
-        --unattended
-        --name devlab-runner
+    - name: Configure the runner
+      ansible.builtin.command:
+        cmd: >
+          su - {{ runner_user }} -c
+          "{{ runner_home }}/config.sh
+          --url {{ github_repo_url }}
+          --token {{ github_runner_token }}
+          --unattended
+          --name devlab-runner"
       args:
         chdir: "{{ runner_home }}"
       when: not runner_configured.stat.exists
 
     - name: Install the runner as a systemd service
-      command: "{{ runner_home }}/svc.sh install {{ runner_user }}"
+      ansible.builtin.command:
+        cmd: "{{ runner_home }}/svc.sh install {{ runner_user }}"
       args:
         chdir: "{{ runner_home }}"
         creates: "/etc/systemd/system/actions.runner.*.service"
 
-    - name: Start and enable the runner service
-      command: "{{ runner_home }}/svc.sh start"
+    - name: Start the runner service
+      ansible.builtin.command:
+        cmd: "{{ runner_home }}/svc.sh start"
       args:
         chdir: "{{ runner_home }}"
