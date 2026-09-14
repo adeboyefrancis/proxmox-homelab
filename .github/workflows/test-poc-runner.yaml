@@ -1,0 +1,28 @@
+name: Runner Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: self-hosted
+
+    steps:
+      - name: Show runner information
+        run: |
+          echo "===== RUNNER ====="
+          hostname
+          whoami
+          pwd
+
+          echo "===== OS ====="
+          uname -a
+
+          echo "===== MEMORY ====="
+          free -h
+
+          echo "===== DISK ====="
+          df -h
+
+          echo "===== IP ====="
+          hostname -I
