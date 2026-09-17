@@ -38,3 +38,13 @@ output "automation_vm_name" {
   value       = proxmox_virtual_environment_vm.automation_vm.name
   description = "The name of the Automation VM"
 }
+
+output "portainer_vm_ip" {
+  value       = proxmox_virtual_environment_vm.portainer_vm.ipv4_addresses[1][0]
+  description = "The IP address of the Portainer VM"
+}
+
+output "portainer_vm_name" {
+  value       = proxmox_virtual_environment_vm.portainer_vm.name
+  description = "The name of the Portainer VM"
+}

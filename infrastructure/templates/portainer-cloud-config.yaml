@@ -1,0 +1,147 @@
+#cloud-config
+# Portainer Auto-Deployment Cloud-Init Configuration
+# Compatible with Ubuntu 22.04 and Debian 12
+
+# Hostname Configuration
+hostname: portainer-server
+manage_etc_hosts: true
+
+package_update: true
+package_upgrade: false
+
+# Users Configuration
+users:
+  - name: admin
+    groups: sudo, docker
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      - ${ssh_key}
+
+packages:
+  - curl
+  - wget
+  - apt-transport-https
+  - ca-certificates
+  - gnupg
+  - lsb-release
+  - openssl
+  - ufw
+  - apache2-utils # Required for htpasswd to generate Portainer admin bcrypt hash
+
+# Write configuration files
+write_files:
+  # Portainer docker-compose configuration
+  - path: /opt/portainer/docker-compose.yml
+    content: |
+      services:
+        portainer:
+          image: portainer/portainer-ce:lts
+          container_name: portainer
+          restart: always
+          command:
+            - --admin-password-file
+            - /run/secrets/portainer-admin-password
+          ports:
+            - "9443:9443"
+            - "8000:8000"
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+            - portainer-data:/data
+            - /opt/portainer/admin_password.txt:/run/secrets/portainer-admin-password:ro
+          logging:
+            driver: json-file
+            options:
+              max-size: "50m"
+              max-file: "3"
+      volumes:
+        portainer-data:
+    owner: root:root
+    permissions: "0644"
+
+  # Portainer initialization script
+  - path: /opt/portainer/init.sh
+    content: |
+      #!/bin/bash
+      set -euo pipefail
+
+      echo "=== Creating Docker Config Directory ==="
+      mkdir -p /etc/docker
+
+      echo "=== Creating Docker Daemon Config ==="
+      cat <<EOF > /etc/docker/daemon.json
+      {
+        "log-driver": "json-file",
+        "log-opts": {
+          "max-size": "100m",
+          "max-file": "3"
+        },
+        "storage-driver": "overlay2",
+        "live-restore": true
+      }
+      EOF
+
+      echo "=== Installing Docker ==="
+      curl -fsSL https://get.docker.com | sh
+      systemctl enable docker
+      systemctl start docker
+
+      echo "=== Installing Docker Compose Plugin ==="
+      apt-get install -y docker-compose-plugin 2>/dev/null || true
+
+      echo "=== Generating Portainer admin password ==="
+      if [ ! -s /opt/portainer/admin_password.txt ]; then
+        # Generates a random plaintext password
+        RAW_PASS="P0rtainer!$(openssl rand -hex 12)"
+        # Portainer requires a BCRYPT hash inside the password file
+        htpasswd -B -n -b admin "$RAW_PASS" | cut -d: -f2 > /opt/portainer/admin_password.txt
+        chmod 600 /opt/portainer/admin_password.txt
+        # Save the plaintext version securely so you can read it to log in
+        echo "$RAW_PASS" > /opt/portainer/PLAINTEXT_PASSWORD.txt
+        chmod 600 /opt/portainer/PLAINTEXT_PASSWORD.txt
+      fi
+
+      echo "=== Starting Portainer ==="
+      cd /opt/portainer
+      docker compose up -d
+
+      echo "=== Waiting for Portainer to start ==="
+      for i in \$(seq 1 30); do
+        if curl -sk https://localhost:9443/api/system/status | grep -q "Version"; then
+          echo "Portainer is ready!"
+          break
+        fi
+        echo "Waiting... (\$i/30)"
+        sleep 5
+      done
+
+      echo "=== Portainer deployment complete ==="
+      echo "Your login password is in: /opt/portainer/PLAINTEXT_PASSWORD.txt"
+      echo "Access Portainer at: https://<your-server-ip>:9443"
+    owner: root:root
+    permissions: "0755"
+
+  # Firewall configuration
+  - path: /opt/portainer/setup-firewall.sh
+    content: |
+      #!/bin/bash
+      # Configure UFW firewall
+      ufw allow ssh
+      ufw allow 9443/tcp comment "Portainer HTTPS"
+      ufw allow 8000/tcp comment "Portainer Edge Agent"
+      ufw --force enable
+    owner: root:root
+    permissions: "0755"
+
+# Run commands in order
+runcmd:
+  # Install Docker and deploy Portainer
+  - [bash, /opt/portainer/init.sh]
+
+  # Configure firewall
+  - [bash, /opt/portainer/setup-firewall.sh]
+
+# Send notification when complete (Optional: Remove if you don't use webhooks)
+phone_home:
+  url: "https://your-webhook.example.com/cloud-init/complete"
+  tries: 3
