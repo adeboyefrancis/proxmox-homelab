@@ -48,3 +48,23 @@ output "portainer_vm_name" {
   value       = proxmox_virtual_environment_vm.portainer_vm.name
   description = "The name of the Portainer VM"
 }
+
+output "k3_control_node_ip" {
+  value       = proxmox_virtual_environment_vm.k3_control_node.ipv4_addresses[1][0]
+  description = "The IP address of the K3s Control Node VM"
+}
+
+output "k3_worker_node_ip" {
+  value       = proxmox_virtual_environment_vm.k3_worker_node.ipv4_addresses[1][0]
+  description = "The IP address of the K3s Worker Node VM"
+}
+
+output "k3_control_node_name" {
+  value       = proxmox_virtual_environment_vm.k3_control_node.name
+  description = "The name of the K3s Control Node VM"
+}
+
+output "k3_worker_node_name" {
+  value       = proxmox_virtual_environment_vm.k3_worker_node.name
+  description = "The name of the K3s Worker Node VM"
+}
