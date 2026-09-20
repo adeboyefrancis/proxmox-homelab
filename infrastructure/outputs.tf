@@ -30,7 +30,8 @@ output "lxc_templates_pool_id" {
 }
 
 output "automation_vm_ip" {
-  value       = proxmox_virtual_environment_vm.automation_vm.ipv4_addresses[1][0]
+  #value       = proxmox_virtual_environment_vm.automation_vm.ipv4_addresses[1][0]
+  value = try(proxmox_virtual_environment_vm.automation_vm.ipv4_addresses[1][0], "unavailable -- VM may be stopped or agent not reporting")
   description = "The IP address of the Automation VM"
 }
 
