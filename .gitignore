@@ -23,3 +23,21 @@ manifest.json
 # Draft files
 local-draft.md
 notes/
+
+
+# ── Machine-generated junk (no one commits these) ───────────────
+# Compiled binaries / local runtime state
+app/quicknotes
+app/data/
+/quicknotes
+*.exe
+
+# Vagrant runtime state  — the Vagrantfile IS committed; .vagrant/ is not
+.vagrant/
+
+# Nix build symlinks — flake.nix + flake.lock ARE committed; result is not
+result
+result-*
+
+# Refs
+refs/
