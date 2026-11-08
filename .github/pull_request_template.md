@@ -15,8 +15,8 @@ Fixes # (issue number if applicable)
 
 Please describe the tests that you ran to verify your changes.
 
-- [ ] Verified local development build (`web` and/or `api`)
-- [ ] GitHub Actions CI pipeline passes successfully
+- [ ] Verified local development build (`app`)
+- [ ] Applicable PR validation checks passed, or noted N/A above if none are configured
 
 ## 📋 Checklist
 

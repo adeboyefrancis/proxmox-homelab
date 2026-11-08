@@ -1,0 +1,22 @@
+repos:
+  # 🔐 Security: Gitleaks Secret Scanner
+  - repo: local
+    hooks:
+      - id: gitleaks
+        name: Gitleaks (Secret Scanner)
+        language: system
+        entry: gitleaks protect --staged --verbose --redact
+        pass_filenames: false
+
+  # 🧹 Linting & Formatting Examples
+
+  # 🐹 Golang: golangci-lint
+  - repo: local
+    hooks:
+      - id: golangci-lint
+        name: Golangci-Lint
+        language: system
+        description: Fast, parallel runner for Go linters
+        entry: bash -c 'cd app && golangci-lint run --timeout=5m ./...'
+        files: ^app/.*\.go$
+        pass_filenames: false
