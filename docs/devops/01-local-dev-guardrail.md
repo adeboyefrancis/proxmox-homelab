@@ -99,7 +99,7 @@ repos:
 #         files: \.[jt]sx?$ # Run only on JS/TS extensions
 ```
 
-- Install/Register the Hooks into Local Git (.git/hooks)
+- Install/Register the pre-commit Hooks into Local Git (.git/hooks)
 
 ```bash
 # Register Hook locally

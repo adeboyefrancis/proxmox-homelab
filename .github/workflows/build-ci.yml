@@ -1,0 +1,63 @@
+name: Build CI
+
+# Triggers
+on:
+  push:
+    branches: [main]
+
+  pull_request:
+    branches: [main]
+
+# Permissions
+permissions:
+  contents: read
+
+# Working Directory
+defaults:
+  run:
+    working-directory: app
+
+jobs:
+  vet:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 #v4.4.0
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e #v7.0.0
+        with:
+          go-version: "1.24"
+          cache: false
+      - name: Vet
+        run: go vet ./...
+
+  test:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 #v4.4.0
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e #v7.0.0
+        with:
+          go-version: "1.24"
+          cache: false
+      - name: Test
+        run: go test -race -count=1 ./...
+
+  lint:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 #v4.4.0
+
+      - name: Set up Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e #v7.0.0
+        with:
+          go-version: "1.24"
+          cache: false
+
+      - name: Lint using golangci-lint v2.5.0
+        uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9 #8.0.0
+        with:
+          version: v2.5.0
+          working-directory: app
+          skip-cache: true
