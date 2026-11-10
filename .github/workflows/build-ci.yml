@@ -1,21 +1,22 @@
 name: Build CI
 
-# Triggers
+# Triggers on run on Push/PR to the main branch/path patterns, Ad-hoc event such as docs shouldnt trigger a build
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - "app/**"
+      - ".github/workflows/build-ci.yml"
 
   pull_request:
-    branches: [main]
+    branches:
+      - main
+      - "app/**"
+      - ".github/workflows/build-ci.yml"
 
 # Permissions
 permissions:
   contents: read
-
-# Working Directory
-defaults:
-  run:
-    working-directory: app
 
 jobs:
   vet:
@@ -27,8 +28,9 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e #v7.0.0
         with:
           go-version: "1.24"
-          cache: false
+          cache-dependency-path: app/...
       - name: Vet
+        working-directory: app
         run: go vet ./...
 
   test:
@@ -40,8 +42,9 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e #v7.0.0
         with:
           go-version: "1.24"
-          cache: false
+          cache-dependency-path: app/...
       - name: Test
+        working-directory: app
         run: go test -race -count=1 ./...
 
   lint:
@@ -53,7 +56,7 @@ jobs:
         uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e #v7.0.0
         with:
           go-version: "1.24"
-          cache: false
+          cache-dependency-path: app/...
 
       - name: Lint using golangci-lint v2.5.0
         uses: golangci/golangci-lint-action@4afd733a84b1f43292c63897423277bb7f4313a9 #8.0.0
@@ -61,3 +64,11 @@ jobs:
           version: v2.5.0
           working-directory: app
           skip-cache: true
+
+  ci-validation: # (Job Aggregator): Validates all CI jobs pass while using matrix strategy across multiple version
+    if: always()
+    needs: [vet, test, lint]
+    runs-on: ubuntu-26.04
+    steps:
+      - run: |
+          test "${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}" = "false"
