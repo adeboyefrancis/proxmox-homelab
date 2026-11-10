@@ -99,7 +99,7 @@ repos:
 #         files: \.[jt]sx?$ # Run only on JS/TS extensions
 ```
 
-- Install/Register the pre-commit Hooks into Local Git (.git/hooks)
+- Install/Register the pre-commit Hooks into Local Git (.git/hooks).
 
 ```bash
 # Register Hook locally
@@ -111,7 +111,7 @@ pre-commit clean # Cleans cache of previous runs
 pre-commit run --all-files  # Run test manually against all files
 ```
 
-- Simulate Test by Adding File that contains some values - Test without committing `gitleaks dir . --verbose --redact`
+- Simulate Test by Adding File that contains some values - Test without committing `gitleaks dir . --verbose --redact`.
 
 ```bash
 # Add Fake File
