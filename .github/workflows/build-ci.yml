@@ -30,6 +30,7 @@ jobs:
           go-version: "1.24"
           cache-dependency-path: app/...
       - name: Vet
+        working-directory: app
         run: go vet ./...
 
   test:
@@ -43,6 +44,7 @@ jobs:
           go-version: "1.24"
           cache-dependency-path: app/...
       - name: Test
+        working-directory: app
         run: go test -race -count=1 ./...
 
   lint:
